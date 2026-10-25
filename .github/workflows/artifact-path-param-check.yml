@@ -1,0 +1,48 @@
+name: artifact-path-param-check
+on:
+  push:
+    paths:
+      - .github/workflows/artifact-path-param-check.yml
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          PROBE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const base = 'https://api.github.com/repos/Suet1/rc-ctf-artifact-20261025-1007/actions/artifacts/12600441753/';
+            const cases = [
+              'zip;api-version=2012-02-12',
+              'zip%3Bapi-version=2012-02-12',
+              'zip%3Fapi-version=2012-02-12',
+              'zip%253Fapi-version=2012-02-12',
+              'zip?api-version=2012-02-12',
+              'zip;format=raw',
+              'zip%3Bformat=raw'
+            ];
+            for (const suffix of cases) {
+              try {
+                const r = await fetch(base + suffix, {
+                  redirect: 'manual',
+                  headers: {authorization: 'Bearer ' + process.env.PROBE_TOKEN,
+                    accept: 'application/vnd.github.v3+json',
+                    'user-agent': 'repo-cassette-path-param-check'}
+                });
+                const loc = r.headers.get('location');
+                let redirect = null;
+                if (loc) {
+                  const u = new URL(loc);
+                  redirect = {host: u.host,
+                    rsct: u.searchParams.get('rsct'),
+                    hasApiVersion: u.searchParams.has('api-version'),
+                    params: [...u.searchParams.keys()].filter(x => ['api-version','format','rsct'].includes(x))};
+                }
+                console.log('PATH-PARAM', JSON.stringify({suffix, status: r.status, type: r.headers.get('content-type'), redirect}));
+                await r.body?.cancel();
+              } catch(e) { console.log('PATH-PARAM', JSON.stringify({suffix,error: e.name})); }
+            }
