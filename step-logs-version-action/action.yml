@@ -1,0 +1,6 @@
+name: Repo Cassette step log version probe
+description: Bounded API version test
+runs:
+  using: node24
+  main: index.mjs
+
