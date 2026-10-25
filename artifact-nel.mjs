@@ -118,7 +118,7 @@ console.log(`REST_MATCH=${observed.equals(Buffer.from(body))}`);
 
 // Additional benign protocol checks; never prints signed URLs or credentials.
 const protocolCases = [
-  ['nel4', 4, 'application/json\u0085'], ['nel6', 6, 'application/json\u0085'],
+  ['nel8',8,'application/json\u0085'], ['nel9',9,'application/json\u0085'], ['nelmax',2147483647,'application/json\u0085'], ['plain8',8,'application/json'], ['plain9',9,'application/json'],
   ['omit1', 1],
   ['omit2', 2],
   ['omit3', 3],
