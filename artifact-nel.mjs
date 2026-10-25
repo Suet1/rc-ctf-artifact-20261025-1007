@@ -125,9 +125,9 @@ const protocolCases = [
   ['omit5', 5],
   ['nbsp7', 7, 'application/json\u00a0'],
   ['percent7', 7, 'application/json%85'],
-  ['c01c7', 7, 'application/json\u001c'],
-  ['namepollute7', 7, 'application/json', '&rsct=application%2Fx-ctf-probe'], ['namecrlf7', 7, 'application/json', '
-Content-Type: application/json'], ['namenel7', 7, 'application/json', '\u0085'],
+  ['c01c7', 7, 'application/json\u001c'], ['lf7',7,'application/json'+String.fromCharCode(10)], ['cr7',7,'application/json'+String.fromCharCode(13)], ['nelparam7',7,'application/json'+String.fromCharCode(133)+';foo=bar'], ['leadnel7',7,String.fromCharCode(133)+'application/json'],
+  ['namepollute7', 7, 'application/json', '&rsct=application%2Fx-ctf-probe'], ['namecrlf7', 7, 'application/json', String.fromCharCode(13,10)+
+'Content-Type: application/json'], ['namenel7', 7, 'application/json', '\u0085'],
 ];
 
 for (const [label, version, mime, suffix = ''] of protocolCases) {
