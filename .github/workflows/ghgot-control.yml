@@ -1,0 +1,19 @@
+name: Repo Cassette gh-got control
+on:
+  push:
+    paths:
+      - .github/workflows/ghgot-control.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-package-lock gh-got@12.0.0
+      - run: node ghgot-control.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
