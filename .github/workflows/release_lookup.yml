@@ -1,0 +1,16 @@
+name: Lookup public JSON asset
+on:
+  push:
+    paths:
+      - .github/workflows/release_lookup.yml
+jobs:
+  lookup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Print public Electron JSON asset metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/electron/electron/releases/tags/v45.0.0-beta.6 --jq '.assets[] | select(.name == "electron-api.json") | {id, name, content_type, size}'
