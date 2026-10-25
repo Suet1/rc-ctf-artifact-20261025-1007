@@ -1,5 +1,5 @@
-name: Repo Cassette duplicate MIME probe
-description: Benign CreateArtifact duplicate-field test
+name: Repo Cassette name probe
+description: Test signed artifact URL encoding
 runs:
   using: node24
-  main: duplicate-root.mjs
+  main: name-root.mjs
