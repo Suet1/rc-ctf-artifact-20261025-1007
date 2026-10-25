@@ -1,0 +1,6 @@
+name: Repo Cassette step logs probe
+description: Bounded completed-job step log endpoint test
+runs:
+  using: node24
+  main: index.mjs
+
