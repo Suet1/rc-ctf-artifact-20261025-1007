@@ -94,6 +94,33 @@ const meta = await twirp('CreateJobLogsMetadata', {...identity, uploaded_at: new
 let rest = await api(`/actions/jobs/${jobId}/logs`);
 let final = null;
 if (rest.status === 302 && rest.headers.location) final = await request(rest.headers.location);
+const versioned = [];
+const githubVersioned = [];
+if (rest.status === 302 && rest.headers.location) {
+  for (const version of ['2009-09-19', '2011-08-18', '2012-02-12', '2013-08-15', '2014-02-14', '2015-02-21']) {
+    const url = new URL(rest.headers.location);
+    url.searchParams.set('api-version', version);
+    try {
+      const response = await request(url);
+      versioned.push({version, status: response.status, typeHex: typeHex(response), blobType: response.headers['x-ms-blob-type'], bodyMatch: response.body.equals(expected)});
+    } catch (error) {
+      versioned.push({version, error: error.code || error.name});
+    }
+    try {
+      const routed = await api(`/actions/jobs/${jobId}/logs?api-version=${version}`);
+      const routedUrl = routed.status === 302 && routed.headers.location ? new URL(routed.headers.location) : null;
+      const routedBlob = routedUrl ? await request(routedUrl) : null;
+      githubVersioned.push({version, restStatus: routed.status,
+        sameBlob: routedUrl && routedUrl.host === parsedSigned.host && routedUrl.pathname === parsedSigned.pathname,
+        hasRsct: routedUrl?.searchParams.has('rsct') || false,
+        hasApiVersion: routedUrl?.searchParams.has('api-version') || false,
+        blobStatus: routedBlob?.status, typeHex: typeHex(routedBlob), blobType: routedBlob?.headers['x-ms-blob-type'],
+        bodyMatch: routedBlob?.body.equals(expected)});
+    } catch (error) {
+      githubVersioned.push({version, error: error.code || error.name});
+    }
+  }
+}
 console.log('JOB-LOG-PROBE', JSON.stringify({
   jobId, repository, expectedSha: sha(expected),
   signedPermissions: parsedSigned.searchParams.get('sp'),
@@ -103,10 +130,12 @@ console.log('JOB-LOG-PROBE', JSON.stringify({
     sameBlob: restBeforeUrl && restBeforeUrl.host === parsedSigned.host && restBeforeUrl.pathname === parsedSigned.pathname,
     hasRsct: restBeforeUrl?.searchParams.has('rsct') || false,
     blobStatus: restBeforeBlob?.status, blobTypeHex: typeHex(restBeforeBlob), blobLength: restBeforeBlob?.body.length},
-  first, after: {status: after.status, typeHex: typeHex(after), bodyMatch: after.body.equals(expected)},
+  first, after: {status: after.status, typeHex: typeHex(after), blobType: after.headers['x-ms-blob-type'], bodyMatch: after.body.equals(expected)},
   metadataStatus: meta.status, restStatus: rest.status,
   restHasRsct: Boolean(rest.headers.location && new URL(rest.headers.location).searchParams.has('rsct')),
-  final: final && {status: final.status, typeHex: typeHex(final), bodyMatch: final.body.equals(expected)},
+  final: final && {status: final.status, typeHex: typeHex(final), blobType: final.headers['x-ms-blob-type'], bodyMatch: final.body.equals(expected)},
+  versioned,
+  githubVersioned,
 }));
 
 // Restore the carrier after the diagnostic line has been flushed to the runner.
