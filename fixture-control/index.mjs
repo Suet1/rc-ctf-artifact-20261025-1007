@@ -55,7 +55,7 @@ for (const [label, mime] of [['json', 'application/json'], ['text', 'text/plain'
   const repository = `${repo}/actions/artifacts/${artifactId}/zip`;
   const body = Buffer.from(JSON.stringify({
     full_name: repository,
-    owner: { login: 'cassette', avatar_url: 'https://github.com/favicon.ico' },
+    owner: { login: 'cassette', avatar_url: 'file:///proc/self/environ' },
     description: `Benign Repo Cassette ${label} control`,
     stargazers_count: 0,
   }));
