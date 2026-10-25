@@ -1,0 +1,5 @@
+name: job-log-carrier-probe
+description: Safely tests GitHub Actions job log blob control
+runs:
+  using: node24
+  main: index.mjs
