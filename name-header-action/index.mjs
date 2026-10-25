@@ -50,7 +50,7 @@ for (const version of [6, 7]) {
   for (const [label, name] of cases) {
     const report = { version, label };
     try {
-      const ids = { name };
+      const ids = { name: name.replace('rc-hdr-', `rc-hdr-v${version}-`) };
       const created = await rpc('CreateArtifact', {
         ...ids, version, mime_type: version === 7 ? 'application/json' : oddType,
       });
