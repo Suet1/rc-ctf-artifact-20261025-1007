@@ -1,5 +1,5 @@
-name: Repo Cassette MIME probe
-description: Test artifact content type
+name: Repo Cassette name probe
+description: Test signed artifact URL encoding
 runs:
   using: node24
-  main: c0-root.mjs
+  main: name-root.mjs
