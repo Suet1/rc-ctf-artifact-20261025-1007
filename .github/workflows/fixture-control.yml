@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - .github/workflows/fixture-control.yml
+      - fixture-control/index.mjs
   workflow_dispatch:
 permissions:
   actions: read
