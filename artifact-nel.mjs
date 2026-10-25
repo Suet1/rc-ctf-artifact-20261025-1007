@@ -115,3 +115,55 @@ console.log(`REST_STATUS=${get.status}`);
 console.log(`REST_CONTENT_TYPE=${JSON.stringify(get.headers.get('content-type'))}`);
 console.log(`REST_SHA256=${createHash('sha256').update(observed).digest('hex')}`);
 console.log(`REST_MATCH=${observed.equals(Buffer.from(body))}`);
+
+// Additional benign protocol checks; never prints signed URLs or credentials.
+const protocolCases = [
+  ['omit0', 0],
+  ['omit1', 1],
+  ['omit2', 2],
+  ['omit3', 3],
+  ['omit5', 5],
+  ['nbsp7', 7, 'application/json\u00a0'],
+  ['percent7', 7, 'application/json%85'],
+  ['c01c7', 7, 'application/json\u001c'],
+  ['namepollute7', 7, 'application/json', '&rsct=application%2Fx-ctf-probe'],
+];
+
+for (const [label, version, mime, suffix = ''] of protocolCases) {
+  const probeName = `rc-probe-${Date.now()}-${label}${suffix}.json`;
+  const request = { ...ids, name: probeName, version };
+  if (mime !== undefined) request.mime_type = mime;
+  let made;
+  try {
+    made = await rpc('CreateArtifact', request);
+    console.log(`CASE_${label}_CREATE=ok`);
+  } catch (error) {
+    console.log(`CASE_${label}_CREATE_ERROR=${String(error.message).slice(0, 200)}`);
+    continue;
+  }
+  const signedUpload = made.signed_upload_url;
+  const content = JSON.stringify({ probe: label });
+  const put = await fetch(signedUpload, {
+    method: 'PUT',
+    headers: {
+      'x-ms-version': '2020-10-02',
+      'x-ms-blob-type': 'BlockBlob',
+      'x-ms-blob-content-type': 'application/json\u0085',
+      'Content-Type': 'application/json',
+    },
+    body: content,
+  });
+  console.log(`CASE_${label}_PUT=${put.status}`);
+  if (!put.ok) continue;
+  const done = await rpc('FinalizeArtifact', {
+    ...ids, name: probeName, size: String(Buffer.byteLength(content)),
+  });
+  console.log(`CASE_${label}_FINAL=${done.artifact_id ?? 'none'}`);
+  const signed = await rpc('GetSignedArtifactURL', { ...ids, name: probeName });
+  const download = new URL(signed.signed_url);
+  console.log(`CASE_${label}_RSCT=${JSON.stringify(download.searchParams.getAll('rsct'))}`);
+  console.log(`CASE_${label}_RSCD_AMP=${String(download.searchParams.get('rscd') ?? '').includes('&')}`);
+  const resp = await fetch(download);
+  console.log(`CASE_${label}_GET=${resp.status}`);
+  console.log(`CASE_${label}_TYPE=${JSON.stringify(resp.headers.get('content-type'))}`);
+}
