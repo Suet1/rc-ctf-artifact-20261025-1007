@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - .github/workflows/rscd-crlf.yml
+      - rscd-probe/index.mjs
   workflow_dispatch:
 permissions:
   actions: read
