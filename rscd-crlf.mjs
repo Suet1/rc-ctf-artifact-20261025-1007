@@ -1,6 +1,5 @@
 // Bounded Actions artifact header probe. Never prints tokens or signed URLs.
 import https from 'node:https';
-import { createHash } from 'node:crypto';
 
 const token = process.env.ACTIONS_RUNTIME_TOKEN;
 const results = process.env.ACTIONS_RESULTS_URL;
@@ -42,8 +41,7 @@ const uploaded = await fetch(uploadUrl, {
   body: payload,
 });
 if (!uploaded.ok) throw Error(`Upload HTTP ${uploaded.status}`);
-const hash = `sha256:${createHash('sha256').update(payload).digest('hex')}`;
-const finalized = await rpc('FinalizeArtifact', { ...ids, name, size: String(payload.length), hash: { value: hash } });
+const finalized = await rpc('FinalizeArtifact', { ...ids, name, size: String(payload.length) });
 const artifactId = finalized.artifact_id || finalized.artifactId;
 if (!artifactId) throw Error('No artifact ID');
 
