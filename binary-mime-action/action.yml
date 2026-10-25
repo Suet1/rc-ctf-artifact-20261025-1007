@@ -1,0 +1,4 @@
+name: Binary protobuf MIME probe
+runs:
+  using: node24
+  main: index.mjs
