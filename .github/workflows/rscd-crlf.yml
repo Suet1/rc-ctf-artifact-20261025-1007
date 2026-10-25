@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node rscd-crlf.mjs
+      - uses: ./rscd-probe
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
