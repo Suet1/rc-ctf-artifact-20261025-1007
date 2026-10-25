@@ -168,3 +168,25 @@ for (const [label, version, mime, suffix = ''] of protocolCases) {
   console.log(`CASE_${label}_GET=${resp.status}`);
   console.log(`CASE_${label}_TYPE=${JSON.stringify(resp.headers.get('content-type'))}`);
 }
+
+
+// Final bounded binary Twirp test: control MIME and a raw invalid UTF-8 byte.
+const pbField = (number, bytes) => Buffer.concat([Buffer.from([number * 8 + 2, bytes.length]), bytes]);
+async function pbTest(label, mimeBytes) {
+  const request = Buffer.concat([
+    pbField(1, Buffer.from(workflowRunBackendId)),
+    pbField(2, Buffer.from(workflowJobRunBackendId)),
+    pbField(3, Buffer.from(`rc-pb-${Date.now()}-${label}`)),
+    Buffer.from([0x28, 7]),
+    pbField(6, pbField(1, mimeBytes)),
+  ]);
+  const response = await fetch(new URL('/twirp/github.actions.results.api.v1.ArtifactService/CreateArtifact', resultsUrl), {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/protobuf' },
+    body: request,
+  });
+  console.log(`PB_${label}_STATUS=${response.status}`);
+  if (!response.ok) console.log(`PB_${label}_ERROR=${(await response.text()).slice(0, 200)}`);
+}
+await pbTest('valid', Buffer.from('application/json'));
+await pbTest('raw85', Buffer.concat([Buffer.from('application/json'), Buffer.from([0x85])]));
