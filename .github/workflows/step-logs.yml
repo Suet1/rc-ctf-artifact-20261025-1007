@@ -1,0 +1,17 @@
+name: Step logs probe
+on:
+  push:
+    paths:
+      - .github/workflows/step-logs.yml
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./step-logs-action
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
