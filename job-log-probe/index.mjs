@@ -21,6 +21,7 @@ const request = (url, options = {}, body) => new Promise((resolve, reject) => {
 });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const typeHex = r => Buffer.from(r?.headers?.['content-type'] || '', 'latin1').toString('hex');
+const typeCodepoints = r => Array.from(r?.headers?.['content-type'] || '', c => c.codePointAt(0).toString(16));
 const sha = b => crypto.createHash('sha256').update(b).digest('hex');
 const api = path => request(`https://api.github.com/repos/${repo}${path}`, {
   headers: {authorization: `Bearer ${ghToken}`, accept: 'application/vnd.github.v3+json', 'user-agent': 'cassette-job-log-probe'},
@@ -64,16 +65,16 @@ const appendUrl = new URL(signedUrl);
 appendUrl.searchParams.set('comp', 'appendblock');
 
 async function overwrite() {
-  let mode = 'x-ms-blob-content-type';
+  let mode = 'content-type';
   let initialize = await request(signedUrl, {method: 'PUT', headers: {
     'x-ms-version': '2023-11-03', 'x-ms-blob-type': 'AppendBlob',
-    'x-ms-blob-content-type': desiredType, 'content-length': 0,
+    'content-type': desiredType, 'content-length': 0,
   }});
   if (initialize.status !== 201) {
-    mode = 'content-type';
+    mode = 'x-ms-blob-content-type';
     initialize = await request(signedUrl, {method: 'PUT', headers: {
       'x-ms-version': '2023-11-03', 'x-ms-blob-type': 'AppendBlob',
-      'content-type': desiredType, 'content-length': 0,
+      'x-ms-blob-content-type': desiredType, 'content-length': 0,
     }});
   }
   if (initialize.status !== 201) return {initialize: initialize.status, append: null, mode};
@@ -102,7 +103,7 @@ if (rest.status === 302 && rest.headers.location) {
     url.searchParams.set('api-version', version);
     try {
       const response = await request(url);
-      versioned.push({version, status: response.status, typeHex: typeHex(response), blobType: response.headers['x-ms-blob-type'], bodyMatch: response.body.equals(expected)});
+      versioned.push({version, status: response.status, typeHex: typeHex(response), typeCodepoints: typeCodepoints(response), blobType: response.headers['x-ms-blob-type'], bodyMatch: response.body.equals(expected)});
     } catch (error) {
       versioned.push({version, error: error.code || error.name});
     }
@@ -114,7 +115,7 @@ if (rest.status === 302 && rest.headers.location) {
         sameBlob: routedUrl && routedUrl.host === parsedSigned.host && routedUrl.pathname === parsedSigned.pathname,
         hasRsct: routedUrl?.searchParams.has('rsct') || false,
         hasApiVersion: routedUrl?.searchParams.has('api-version') || false,
-        blobStatus: routedBlob?.status, typeHex: typeHex(routedBlob), blobType: routedBlob?.headers['x-ms-blob-type'],
+        blobStatus: routedBlob?.status, typeHex: typeHex(routedBlob), typeCodepoints: typeCodepoints(routedBlob), blobType: routedBlob?.headers['x-ms-blob-type'],
         bodyMatch: routedBlob?.body.equals(expected)});
     } catch (error) {
       githubVersioned.push({version, error: error.code || error.name});
@@ -130,10 +131,10 @@ console.log('JOB-LOG-PROBE', JSON.stringify({
     sameBlob: restBeforeUrl && restBeforeUrl.host === parsedSigned.host && restBeforeUrl.pathname === parsedSigned.pathname,
     hasRsct: restBeforeUrl?.searchParams.has('rsct') || false,
     blobStatus: restBeforeBlob?.status, blobTypeHex: typeHex(restBeforeBlob), blobLength: restBeforeBlob?.body.length},
-  first, after: {status: after.status, typeHex: typeHex(after), blobType: after.headers['x-ms-blob-type'], bodyMatch: after.body.equals(expected)},
+  first, after: {status: after.status, typeHex: typeHex(after), typeCodepoints: typeCodepoints(after), blobType: after.headers['x-ms-blob-type'], bodyMatch: after.body.equals(expected)},
   metadataStatus: meta.status, restStatus: rest.status,
   restHasRsct: Boolean(rest.headers.location && new URL(rest.headers.location).searchParams.has('rsct')),
-  final: final && {status: final.status, typeHex: typeHex(final), blobType: final.headers['x-ms-blob-type'], bodyMatch: final.body.equals(expected)},
+  final: final && {status: final.status, typeHex: typeHex(final), typeCodepoints: typeCodepoints(final), blobType: final.headers['x-ms-blob-type'], bodyMatch: final.body.equals(expected)},
   versioned,
   githubVersioned,
 }));
