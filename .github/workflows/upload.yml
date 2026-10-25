@@ -1,16 +1,13 @@
-name: Upload raw JSON
+name: Probe raw artifact
 on:
   push:
   workflow_dispatch:
 jobs:
-  upload:
+  probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - id: upload
-        uses: actions/upload-artifact@v7
-        with:
-          path: payload.json
-          archive: false
-          retention-days: 1
-      - run: echo "artifact_id=${{ steps.upload.outputs.artifact-id }}"
+      - name: Create benign raw artifact
+        run: node artifact-nel.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
