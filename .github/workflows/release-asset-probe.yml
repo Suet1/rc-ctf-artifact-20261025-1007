@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - .github/workflows/release-asset-probe.yml
+      - release-asset-probe.mjs
   workflow_dispatch:
 permissions:
   contents: write
