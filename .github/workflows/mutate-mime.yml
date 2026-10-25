@@ -1,0 +1,17 @@
+name: Repo Cassette post-create MIME probe
+on:
+  push:
+    paths:
+      - .github/workflows/mutate-mime.yml
+  workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./mutate-mime-action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
