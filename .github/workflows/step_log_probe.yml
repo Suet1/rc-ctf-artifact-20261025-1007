@@ -1,0 +1,33 @@
+name: Probe Repo Cassette step log carrier
+on:
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  carrier:
+    runs-on: ubuntu-latest
+    outputs:
+      job_id: ${{ steps.probe.outputs.job_id }}
+      step_number: ${{ steps.probe.outputs.step_number }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Carrier target
+        run: echo carrier-target
+      - name: Probe step log blob
+        id: probe
+        uses: ./step-log-probe
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+  watcher:
+    needs: carrier
+    if: ${{ needs.carrier.outputs.job_id != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check completed step log
+        run: node step-log-probe/watch.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CARRIER_JOB_ID: ${{ needs.carrier.outputs.job_id }}
+          CARRIER_STEP_NUMBER: ${{ needs.carrier.outputs.step_number }}
