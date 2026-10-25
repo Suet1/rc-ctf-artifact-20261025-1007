@@ -50,8 +50,7 @@ if (release.status !== 201) {
 const releaseId = JSON.parse(release.body).id;
 
 const cases = [
-  ['plain', 'application/json'],
-  ['nel', '\u0085application/json'],
+  ['vendor', 'application/vnd.github.v3+json'],
 ];
 for (const [label, mime] of cases) {
   const payload = Buffer.from(JSON.stringify({ probe: label, run }));
