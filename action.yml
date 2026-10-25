@@ -2,4 +2,4 @@ name: Repo Cassette race probe
 description: Test raw artifact content type
 runs:
   using: node24
-  main: race_probe_safe.mjs
+  main: compact-root.mjs
