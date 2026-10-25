@@ -1,0 +1,36 @@
+name: step-log-carrier-check
+on:
+  push:
+    paths:
+      - .github/workflows/step-log-carrier-check.yml
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          PROBE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const target = 'https://api.github.com/repos/Suet1/rc-ctf-artifact-20261025-1007/actions/jobs/121174867238/steps/';
+            for (const n of [0, 1, 2, 3, 6, 7]) {
+              const r = await fetch(target + n + '/logs', {
+                redirect: 'manual',
+                headers: {
+                  authorization: 'Bearer ' + process.env.PROBE_TOKEN,
+                  accept: 'application/vnd.github.v3+json',
+                  'user-agent': 'repo-cassette-step-check'
+                }
+              });
+              let location = null;
+              const rawLocation = r.headers.get('location');
+              if (rawLocation) {
+                const u = new URL(rawLocation);
+                location = {host: u.host, rsct: u.searchParams.get('rsct'), hasApiVersion: u.searchParams.has('api-version')};
+              }
+              console.log('STEP-LOG', JSON.stringify({step: n, status: r.status, type: r.headers.get('content-type'), location}));
+              await r.body?.cancel();
+            }
