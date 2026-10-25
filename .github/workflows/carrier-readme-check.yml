@@ -1,0 +1,26 @@
+name: Carrier README API probe
+on:
+  push:
+    branches:
+      - carrier-readme-check-20261025
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe fixed Accept on JSON and Markdown READMEs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -eu
+          for p in readme/carrier-readme-json readme/carrier-readme-md contents/carrier-readme-json/README.json; do
+            h=$(mktemp)
+            b=$(mktemp)
+            code=$(curl -sS -L -w '%{http_code}' -D "$h" -o "$b" -H 'Accept: application/vnd.github.v3+json' -H "Authorization: Bearer $GH_TOKEN" -H 'User-Agent: ctf-carrier-research' "https://api.github.com/repos/$GITHUB_REPOSITORY/$p?ref=$GITHUB_REF_NAME")
+            echo "PATH=$p STATUS=$code BYTES=$(wc -c < "$b") SHA256=$(sha256sum "$b" | cut -d' ' -f1)"
+            grep -i '^content-type:' "$h" || true
+            python3 -c 'import sys; print("BODY_PREFIX="+repr(open(sys.argv[1],"rb").read(160)))' "$b"
+            rm -f "$h" "$b"
+          done
