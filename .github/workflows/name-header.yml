@@ -1,0 +1,17 @@
+name: Repo Cassette artifact-name header probe
+on:
+  push:
+    paths:
+      - .github/workflows/name-header.yml
+  workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./name-header-action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
