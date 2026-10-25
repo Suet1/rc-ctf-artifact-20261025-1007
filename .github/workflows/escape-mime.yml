@@ -1,0 +1,12 @@
+name: Escape MIME probe
+on:
+  push:
+    paths:
+      - .github/workflows/escape-mime.yml
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./escape-mime-action
+
