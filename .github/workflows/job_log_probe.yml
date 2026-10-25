@@ -1,0 +1,15 @@
+name: Probe Repo Cassette job log carrier
+on:
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  carrier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Probe job log blob
+        uses: ./job-log-probe
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
