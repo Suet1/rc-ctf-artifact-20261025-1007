@@ -1,0 +1,6 @@
+name: Repo Cassette fixture control
+description: Benign raw artifact carrier probe
+runs:
+  using: node24
+  main: index.mjs
+
