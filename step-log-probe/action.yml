@@ -1,0 +1,5 @@
+name: step-log-carrier-probe
+description: Safely tests GitHub Actions step log blob control
+runs:
+  using: node24
+  main: index.mjs
