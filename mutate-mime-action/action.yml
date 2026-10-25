@@ -1,0 +1,4 @@
+name: Post-create MIME probe
+runs:
+  using: node24
+  main: index.mjs
