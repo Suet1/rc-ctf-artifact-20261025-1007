@@ -1,5 +1,5 @@
-name: Repo Cassette name probe
-description: Test signed artifact URL encoding
+name: Repo Cassette version matrix
+description: Benign artifact protocol version test
 runs:
   using: node24
-  main: name-root.mjs
+  main: artifact-action/version_matrix_probe.mjs
