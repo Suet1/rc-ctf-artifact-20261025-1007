@@ -1,0 +1,5 @@
+name: migrate-artifact-probe
+description: Tests GitHub migrated artifact response headers with benign data
+runs:
+  using: node24
+  main: index.mjs
