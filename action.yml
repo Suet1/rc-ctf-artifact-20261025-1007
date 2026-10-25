@@ -1,0 +1,5 @@
+name: Benign artifact probe
+description: Test raw artifact content type
+runs:
+  using: node24
+  main: artifact-nel.mjs
