@@ -1,13 +1,26 @@
-name: Probe raw artifact
+name: Repo Cassette race probe
 on:
-  push:
   workflow_dispatch:
+    inputs:
+      portrait_url:
+        description: Portrait URL for the artifact carrier
+        required: false
+        type: string
+      race_rounds:
+        description: Number of race batches
+        required: false
+        type: string
+        default: '8'
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create benign raw artifact
+      - name: Install runner dependencies
+        run: npm install --no-save @actions/artifact@6.3.1 @azure/storage-blob@12.31.0
+      - name: Run artifact race probe
         uses: ./
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PORTRAIT_URL: ${{ inputs.portrait_url }}
+          RACE_ROUNDS: ${{ inputs.race_rounds }}
