@@ -1,5 +1,5 @@
-name: Repo Cassette duplicate version probe
-description: Test artifact version parser behavior
+name: Repo Cassette name probe
+description: Test signed artifact URL encoding
 runs:
   using: node24
-  main: duplicate-version-root.mjs
+  main: name-root.mjs
