@@ -1,5 +1,5 @@
-name: Repo Cassette name probe
-description: Test signed artifact URL encoding
+name: Repo Cassette protobuf MIME probe
+description: Benign binary Twirp Content-Type test
 runs:
   using: node24
-  main: name-root.mjs
+  main: protobuf-root.mjs
