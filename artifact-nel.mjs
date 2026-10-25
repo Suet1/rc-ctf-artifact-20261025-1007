@@ -60,14 +60,14 @@ let created;
 let createMime = blobMime;
 try {
   created = await rpc('CreateArtifact', {
-    ...ids, name, version: 4,
+    ...ids, name, version: 7,
   });
 } catch (error) {
   console.log(`NEL_CREATE_ERROR=${error.message}`);
   createMime = 'application/json';
   name = `repo-cassette-${Date.now()}-fallback.json`;
   created = await rpc('CreateArtifact', {
-    ...ids, name, version: 4,
+    ...ids, name, version: 7,
   });
 }
 console.log(`CREATE_MIME=${JSON.stringify(createMime)}`);
