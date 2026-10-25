@@ -1,0 +1,27 @@
+name: release-route-check
+on:
+  push:
+    paths:
+      - .github/workflows/release-route-check.yml
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          PROBE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const base = 'https://api.github.com/repos/cli/cli/releases/assets/670305018';
+            for (const suffix of ['/raw','/file','/content','/download','/zip','?raw=true','?download=true','?format=octet-stream']) {
+              try {
+                const r = await fetch(base + suffix, {redirect: 'manual', headers: {
+                  authorization: 'Bearer ' + process.env.PROBE_TOKEN,
+                  accept: 'application/vnd.github.v3+json',
+                  'user-agent': 'repo-cassette-release-route-check'}});
+                console.log('RELEASE-ROUTE', JSON.stringify({suffix,status:r.status,type:r.headers.get('content-type'),redirect:!!r.headers.get('location')}));
+                await r.body?.cancel();
+              } catch(e) { console.log('RELEASE-ROUTE', JSON.stringify({suffix,error:e.name})); }
+            }
