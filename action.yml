@@ -1,5 +1,5 @@
-name: Repo Cassette header probe
-description: Test signed artifact headers
+name: Repo Cassette name probe
+description: Test signed artifact URL encoding
 runs:
   using: node24
-  main: combined-root.mjs
+  main: name-root.mjs
