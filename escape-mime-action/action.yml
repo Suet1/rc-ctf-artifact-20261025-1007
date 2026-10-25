@@ -1,0 +1,6 @@
+name: Repo Cassette escape MIME probe
+description: Bounded v7 MIME decoding tests
+runs:
+  using: node24
+  main: index.mjs
+
