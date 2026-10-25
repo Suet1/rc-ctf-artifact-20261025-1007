@@ -1,0 +1,17 @@
+name: Repo Cassette release asset probe
+on:
+  push:
+    paths:
+      - .github/workflows/release-asset-probe.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node release-asset-probe.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
