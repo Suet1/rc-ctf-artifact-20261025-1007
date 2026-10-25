@@ -1,0 +1,28 @@
+name: Cross-job Repo Cassette artifact probe
+on: workflow_dispatch
+permissions:
+  actions: write
+  contents: read
+jobs:
+  v6:
+    runs-on: ubuntu-latest
+    env:
+      CTF_VERSION: '6'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: npm install --no-save @actions/artifact@6.3.1 @azure/storage-blob@12.31.0
+      - uses: ./cross-job-action
+  v7:
+    runs-on: ubuntu-latest
+    env:
+      CTF_VERSION: '7'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: npm install --no-save @actions/artifact@6.3.1 @azure/storage-blob@12.31.0
+      - uses: ./cross-job-action
