@@ -1,5 +1,5 @@
-name: Repo Cassette race probe
-description: Test raw artifact content type
+name: Repo Cassette MIME probe
+description: Test artifact content type
 runs:
   using: node24
-  main: compact-root.mjs
+  main: c0-root.mjs
