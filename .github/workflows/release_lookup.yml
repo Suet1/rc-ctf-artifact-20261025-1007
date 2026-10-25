@@ -9,8 +9,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Print public Electron JSON asset metadata
+      - name: Print public ClawSec JSON asset metadata
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api repos/electron/electron/releases/tags/v45.0.0-beta.6 --jq '.assets[] | select(.name == "electron-api.json") | {id, name, content_type, size}'
+          gh api repos/prompt-security/clawsec/releases/tags/nanoclaw-traffic-guardian-v0.0.2 --jq '.assets[] | select(.name == "checksums.json") | {id, name, content_type, size}'
